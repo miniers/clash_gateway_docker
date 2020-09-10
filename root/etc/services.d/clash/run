@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv sh
+
+s6-svc -u /var/run/s6/services/add-ip-rule
+
+exec /clash

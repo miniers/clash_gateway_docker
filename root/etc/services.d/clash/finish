@@ -1,0 +1,20 @@
+#!/bin/bash
+
+GW=`ip route get 1 | awk '{print $3;exit}'`
+ST=`ip route get 1 | awk '{print $7;exit}'`
+
+echo gateway: $GW
+echo owen ip: $ST
+
+IFS=. read -r i1 i2 i3 i4<<<"$GW"
+IFS=. read -r m1 m2 m3 m4<<<"$ST"
+bf="$i1.$i2.$i3.$((i4+1)) - $m1.$m2.$m3.$((m4-1))"
+af="$m1.$m2.$m3.$((m4+1)) - $m1.$m2.$m3.255"
+ITER=0
+for nl in $(ipcalc $bf | sed '1d') $(ipcalc $af | sed '1d')
+do 
+    tabnum=$((ITER+100))
+    echo del table rule: $tabnum: $nl 
+    ip rule del from $nl table $tabnum
+    ITER=$(expr $ITER + 1)
+done
